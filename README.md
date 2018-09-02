@@ -1,4 +1,9 @@
 # This is stage 1 of the popular movies Application of  the Udacity nano degree program.
+```
+The application uses themovieDb API to retrieve movies.
+NOTE: You should have an API key in order to use the application.
+```
+
 ## Functionalities (The application is in java programming language).
 ```
 - The application presents a user with a grid arrangement of the movies.
