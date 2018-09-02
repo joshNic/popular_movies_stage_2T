@@ -26,5 +26,5 @@ NOTE: You should have an API key in order to use the application.
 
 ## Acknowledgement
 ```
-A special thanks to ![Androidhive](https://www.androidhive.info) for the wonderful tutorials.
+A special thanks to [AndroidHive](https://www.androidhive.info) for the wonderful tutorials.
 ```
