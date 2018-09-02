@@ -23,3 +23,8 @@ NOTE: You should have an API key in order to use the application.
 ![alt text](screenshoots/homeoptions.png "Options menu")<br/>
 ![alt text](screenshoots/details.png "Details Page")<br/>
 ![alt text](screenshoots/detailcol.png "Details Page collapsed")
+
+## Acknowledgement
+```
+A special thanks to [Androidhive](https://www.androidhive.info) for the wonderful tutorials.
+```
