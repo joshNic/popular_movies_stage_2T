@@ -1,12 +1,19 @@
 package info.popularmovies;
 
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,6 +34,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import info.popularmovies.adapter.ReviewsAdapter;
@@ -41,6 +49,7 @@ public class Detail extends AppCompatActivity {
     private List<Trailer> trailersList;
     private ReviewsAdapter rAdpter;
     private TrailersAdapter tAdpter;
+    private RecyclerView trailerRecyclerView, reviewsRecyclerView;
 
 
     @Override
@@ -51,6 +60,25 @@ public class Detail extends AppCompatActivity {
         releaseDate = findViewById(R.id.release_date);
         voteRange = findViewById(R.id.vote_average);
         posterPath = findViewById(R.id.poster_path);
+        trailerRecyclerView = findViewById(R.id.trailerContent);
+        trailersList = new ArrayList<>();
+        tAdpter = new TrailersAdapter(this, trailersList);
+        //        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        RecyclerView.LayoutManager mLayoutManager = new GridLayoutManager(this, 3);
+        trailerRecyclerView.addItemDecoration(new GridSpacingItemDecoration(3, dpToPx(8), true));
+        trailerRecyclerView.setLayoutManager(mLayoutManager);
+//        recyclerView.addItemDecoration(new GridSpacingItemDecoration(2, dpToPx(5), true));
+        //trailerRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        trailerRecyclerView.setAdapter(tAdpter);
+
+        reviewsRecyclerView = findViewById(R.id.reviewsContent);
+        reviewsList = new ArrayList<>();
+        rAdpter = new ReviewsAdapter(this, reviewsList);
+        RecyclerView.LayoutManager llayoutManager = new LinearLayoutManager(this);
+        reviewsRecyclerView.setLayoutManager(llayoutManager);
+
+        reviewsRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        reviewsRecyclerView.setAdapter(rAdpter);
         final ProgressBar progressBar = findViewById(R.id.progress);
 
         Intent i = getIntent();
@@ -59,6 +87,9 @@ public class Detail extends AppCompatActivity {
         final String poster_path = i.getStringExtra("poster_path");
         final Double vote_average = i.getDoubleExtra("vote_average", 0.0);
         final String release_date = i.getStringExtra("release_date");
+        final int movie_id = i.getIntExtra("id", 0);
+        String reviewsUrl = "https://api.themoviedb.org/3/movie/" + movie_id + "/reviews?sort_by=popularity.desc&api_key=3b4fa6d92dc68163933f56efe5642628";
+        String trailersUrl = "http://api.themoviedb.org/3/movie/" + movie_id + "/videos?api_key=3b4fa6d92dc68163933f56efe5642628";
 
         overView.setText(over_view);
         releaseDate.setText(release_date);
@@ -112,6 +143,8 @@ public class Detail extends AppCompatActivity {
             }
         });
 
+        fetchReviewItem(reviewsUrl);
+        fetchTrailerItem(trailersUrl);
 
     }
 
@@ -188,7 +221,7 @@ public class Detail extends AppCompatActivity {
                         for (int j = 0; j < response.length(); j++) {
                             try {
                                 JSONArray trailerArray = response.getJSONArray("results");
-                                reviewsList.clear();
+                                trailersList.clear();
                                 for (int i = 0; i < trailerArray.length(); i++) {
                                     JSONObject trailerObj = (JSONObject) trailerArray.get(i);
 
@@ -221,6 +254,50 @@ public class Detail extends AppCompatActivity {
         // Adding request to request queue
         MyApplication.getInstance().addToRequestQueue(trailerReq);
     }
+
+    /**
+     * Converting dp to pixel
+     */
+    private int dpToPx(int dp) {
+        Resources r = getResources();
+        return Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics()));
+    }
+
+    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+
+        private int spanCount;
+        private int spacing;
+        private boolean includeEdge;
+
+        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
+            this.spanCount = spanCount;
+            this.spacing = spacing;
+            this.includeEdge = includeEdge;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+            int position = parent.getChildAdapterPosition(view); // item position
+            int column = position % spanCount; // item column
+
+            if (includeEdge) {
+                outRect.left = spacing - column * spacing / spanCount; // spacing - column * ((1f / spanCount) * spacing)
+                outRect.right = (column + 1) * spacing / spanCount; // (column + 1) * ((1f / spanCount) * spacing)
+
+                if (position < spanCount) { // top edge
+                    outRect.top = spacing;
+                }
+                outRect.bottom = spacing; // item bottom
+            } else {
+                outRect.left = column * spacing / spanCount; // column * ((1f / spanCount) * spacing)
+                outRect.right = spacing - (column + 1) * spacing / spanCount; // spacing - (column + 1) * ((1f /    spanCount) * spacing)
+                if (position >= spanCount) {
+                    outRect.top = spacing; // item top
+                }
+            }
+        }
+    }
+
 
 }
 

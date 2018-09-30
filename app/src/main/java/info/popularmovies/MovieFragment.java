@@ -33,7 +33,7 @@ import info.popularmovies.adapter.MoviesAdapter;
 public class MovieFragment extends Fragment {
 
     private static final String TAG = MovieFragment.class.getSimpleName();
-    private String URL = "http://api.themoviedb.org/3/movie/popular?api_key=";
+    private String URL = "http://api.themoviedb.org/3/movie/popular?api_key=3b4fa6d92dc68163933f56efe5642628";
 
 
     private RecyclerView recyclerView;
@@ -109,6 +109,7 @@ public class MovieFragment extends Fragment {
                                     movie.setOverview(movieObj.getString("overview"));
                                     movie.setRelease_date(movieObj.getString("release_date"));
                                     movie.setVote_range(movieObj.getDouble("vote_average"));
+                                    movie.setId(movieObj.getInt("id"));
                                     movieList.add(movie);
                                 }
 
@@ -165,7 +166,7 @@ public class MovieFragment extends Fragment {
 
             case R.id.rating:
 
-                String URL2 = "http://api.themoviedb.org/3/movie/top_rated?api_key=";
+                String URL2 = "http://api.themoviedb.org/3/movie/top_rated?api_key=3b4fa6d92dc68163933f56efe5642628)";
 
                 fetchStoreItem(URL2);
                 return true;

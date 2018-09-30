@@ -46,6 +46,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHold
         final String Oview = movie.getOverview();
         final String date = movie.getRelease_date();
         final Double range = movie.getVote_range();
+        final int movieId = movie.getId();
         holder.thumbnail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,6 +57,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MyViewHold
                 intent.putExtra("release_date", date);
                 intent.putExtra("vote_average", range);
                 intent.putExtra("over_view", Oview);
+                intent.putExtra("id", movieId);
                 view.getContext().startActivity(intent);
                 //Toast.makeText(getActivity(), "Image still downloading.....", Toast.LENGTH_SHORT).show();
             }

@@ -7,6 +7,16 @@ public class Movie {
     private String release_date;
     private double vote_range;
 
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public Movie() {
 
     }

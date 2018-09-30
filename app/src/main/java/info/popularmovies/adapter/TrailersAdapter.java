@@ -35,9 +35,12 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.MyView
     public void onBindViewHolder(TrailersAdapter.MyViewHolder holder, final int position) {
         final Trailer trailer = trailersList.get(position);
 
-        final String name = trailer.getName();
-        final String key = trailer.getKey();
+        final String name = trailer.getName().toString().replaceAll("\"", "");
+        //final String key = trailer.getKey();
         final String type = trailer.getType();
+        holder.nameTv.setText(name);
+        holder.typeTv.setText(type);
+        holder.thumbnail.setImageResource(R.drawable.ic_play_in_film_strip);
 
 
     }
@@ -58,6 +61,7 @@ public class TrailersAdapter extends RecyclerView.Adapter<TrailersAdapter.MyView
             typeTv = view.findViewById(R.id.type);
             thumbnail = view.findViewById(R.id.imageView);
             cardView = view.findViewById(R.id.card_view);
+
 
         }
     }

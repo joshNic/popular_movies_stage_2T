@@ -35,7 +35,9 @@ public class ReviewsAdapter extends RecyclerView.Adapter<ReviewsAdapter.MyViewHo
         final Review review = reviewsList.get(position);
 
         final String author = review.getAuthor();
-        final String content = review.getAuthor();
+        final String content = review.getContent();
+        holder.authorTv.setText(author);
+        holder.contentTv.setText(content);
 
     }
 
