@@ -14,11 +14,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -39,6 +41,9 @@ import java.util.List;
 
 import info.popularmovies.adapter.ReviewsAdapter;
 import info.popularmovies.adapter.TrailersAdapter;
+import info.popularmovies.database.Movie;
+import info.popularmovies.database.MovieDao;
+import info.popularmovies.database.MovieDatabase;
 
 public class Detail extends AppCompatActivity {
     private CollapsingToolbarLayout collapsingToolbar;
@@ -88,12 +93,16 @@ public class Detail extends AppCompatActivity {
         final Double vote_average = i.getDoubleExtra("vote_average", 0.0);
         final String release_date = i.getStringExtra("release_date");
         final int movie_id = i.getIntExtra("id", 0);
+
+
         String reviewsUrl = "https://api.themoviedb.org/3/movie/" + movie_id + "/reviews?sort_by=popularity.desc&api_key=3b4fa6d92dc68163933f56efe5642628";
         String trailersUrl = "http://api.themoviedb.org/3/movie/" + movie_id + "/videos?api_key=3b4fa6d92dc68163933f56efe5642628";
 
         overView.setText(over_view);
         releaseDate.setText(release_date);
         voteRange.setText(String.valueOf(vote_average));
+
+
         Glide.with(this)
                 .load(poster_path)
                 .listener(new RequestListener<String, GlideDrawable>() {
@@ -149,6 +158,13 @@ public class Detail extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the actionbar if it is present.
+        getMenuInflater().inflate(R.menu.detail_menu, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // handle arrow click here
         if (item.getItemId() == android.R.id.home) {
@@ -157,6 +173,7 @@ public class Detail extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
     private void fetchReviewItem(String url) {
         // Showing progress bar before making http request
@@ -204,6 +221,22 @@ public class Detail extends AppCompatActivity {
 
         // Adding request to request queue
         MyApplication.getInstance().addToRequestQueue(reviewReq);
+    }
+
+    private void makeFavourite(final String original_title, final String release_date,
+                               final String poster_path, final Double vote_average,
+                               final String over_view, final int movie_id) {
+        Movie content = new Movie();
+        content.setMovie_title(original_title);
+        content.setRelease_date(release_date);
+        content.setVote_average(vote_average);
+        content.setPoster_path(poster_path);
+        content.setMovie_id(movie_id);
+        content.setOver_view(over_view);
+        MovieDao movie = MovieDatabase.getInstance(this).movie();
+        movie.insertNewMovie(content);
+        Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+
     }
 
     private void fetchTrailerItem(String url) {
