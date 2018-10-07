@@ -1,11 +1,13 @@
 package info.popularmovies;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -41,9 +43,8 @@ import java.util.List;
 
 import info.popularmovies.adapter.ReviewsAdapter;
 import info.popularmovies.adapter.TrailersAdapter;
-import info.popularmovies.database.Movie;
-import info.popularmovies.database.MovieDao;
-import info.popularmovies.database.MovieDatabase;
+import info.popularmovies.database.DatabaseMovie;
+import info.popularmovies.database.MovieViewModel;
 
 public class Detail extends AppCompatActivity {
     private CollapsingToolbarLayout collapsingToolbar;
@@ -55,12 +56,15 @@ public class Detail extends AppCompatActivity {
     private ReviewsAdapter rAdpter;
     private TrailersAdapter tAdpter;
     private RecyclerView trailerRecyclerView, reviewsRecyclerView;
+    private MovieViewModel mWordViewModel;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.movie_details);
+
+
         overView = findViewById(R.id.over_view);
         releaseDate = findViewById(R.id.release_date);
         voteRange = findViewById(R.id.vote_average);
@@ -119,6 +123,17 @@ public class Detail extends AppCompatActivity {
                     }
                 })
                 .into(posterPath);
+        mWordViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                makeFavourite(original_title, release_date, poster_path, vote_average, over_view, movie_id);
+
+                Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+            }
+        });
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -223,21 +238,53 @@ public class Detail extends AppCompatActivity {
         MyApplication.getInstance().addToRequestQueue(reviewReq);
     }
 
-    private void makeFavourite(final String original_title, final String release_date,
-                               final String poster_path, final Double vote_average,
-                               final String over_view, final int movie_id) {
-        Movie content = new Movie();
-        content.setMovie_title(original_title);
-        content.setRelease_date(release_date);
-        content.setVote_average(vote_average);
-        content.setPoster_path(poster_path);
-        content.setMovie_id(movie_id);
-        content.setOver_view(over_view);
-        MovieDao movie = MovieDatabase.getInstance(this).movie();
-        movie.insertNewMovie(content);
-        Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+    private void makeFavourite(final String original_titl, final String release_dat,
+                               final String poster_pat, final Double vote_averag,
+                               final String over_vie, final int movie_i) {
+        DatabaseMovie task = new DatabaseMovie();
+        task.setOriginal_title(original_titl);
+        task.setId(movie_i);
+        task.setOverview(over_vie);
+        task.setPoster_path(poster_pat);
+        task.setRelease_date(release_dat);
+        task.setVote_range(vote_averag);
+        mWordViewModel.insert(task);
+//        Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
 
     }
+//        class SaveTask extends AsyncTask<Void, Void, Void> {
+//
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//
+//                //creating a task
+//                DatabaseMovie task = new DatabaseMovie();
+//                task.setOriginal_title(original_title);
+//                task.setId(movie_id);
+//                task.setOverview(over_view);
+//                task.setPoster_path(poster_path);
+//                task.setRelease_date(release_date);
+//                task.setVote_range(vote_average);
+//
+//
+//                //adding to database
+////                MovieRoomDatabase.getInstance(getApplicationContext()).getAppDatabase()
+////                        .taskDao()
+////                        .insert(task);
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Void aVoid) {
+//                super.onPostExecute(aVoid);
+//                finish();
+//                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//                Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_LONG).show();
+//            }
+//        }
+//        Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+//
+//    }
 
     private void fetchTrailerItem(String url) {
         // Showing progress bar before making http request
