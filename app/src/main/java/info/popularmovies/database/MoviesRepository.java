@@ -10,15 +10,28 @@ public class MoviesRepository {
 
     private MovieDao mWordDao;
     private LiveData<List<DatabaseMovie>> mAllWords;
+    private static MovieRoomDatabase db;
+    private LiveData<List<DatabaseMovie>> mAllWord;
+
+    //Repository initialization
+//    public void init(Context context) {
+//        databaseService = MovieRoomDatabase.getDatabase(context);
+//    }
+
 
     MoviesRepository(Application application) {
-        MovieRoomDatabase db = MovieRoomDatabase.getDatabase(application);
+        db = MovieRoomDatabase.getDatabase(application);
         mWordDao = db.movieDao();
         mAllWords = mWordDao.getAllWords();
+        //mAllWord = mWordDao.getMovieById(id);
     }
 
     LiveData<List<DatabaseMovie>> getAllWords() {
         return mAllWords;
+    }
+
+    public LiveData<DatabaseMovie> getFavouriteMovieById(int id) {
+        return db.movieDao().getMovieById(id);
     }
 
 
@@ -37,6 +50,27 @@ public class MoviesRepository {
         @Override
         protected Void doInBackground(final DatabaseMovie... params) {
             mAsyncTaskDao.insert(params[0]);
+            return null;
+        }
+    }
+
+    //Delete
+
+    public void delete(DatabaseMovie word) {
+        new deleteAsyncTask(mWordDao).execute(word);
+    }
+
+    private static class deleteAsyncTask extends AsyncTask<DatabaseMovie, Void, Void> {
+
+        private MovieDao mAsyncTaskDao;
+
+        deleteAsyncTask(MovieDao dao) {
+            mAsyncTaskDao = dao;
+        }
+
+        @Override
+        protected Void doInBackground(final DatabaseMovie... params) {
+            mAsyncTaskDao.deleteBorrow(params[0]);
             return null;
         }
     }

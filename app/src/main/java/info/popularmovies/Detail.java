@@ -2,6 +2,7 @@ package info.popularmovies;
 
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -43,7 +44,9 @@ import java.util.List;
 
 import info.popularmovies.adapter.ReviewsAdapter;
 import info.popularmovies.adapter.TrailersAdapter;
+import info.popularmovies.database.DatabaseActivity;
 import info.popularmovies.database.DatabaseMovie;
+import info.popularmovies.database.MovieIdViewModel;
 import info.popularmovies.database.MovieViewModel;
 
 public class Detail extends AppCompatActivity {
@@ -55,8 +58,12 @@ public class Detail extends AppCompatActivity {
     private List<Trailer> trailersList;
     private ReviewsAdapter rAdpter;
     private TrailersAdapter tAdpter;
+    private DatabaseMovie favourite;
     private RecyclerView trailerRecyclerView, reviewsRecyclerView;
     private MovieViewModel mWordViewModel;
+    private MovieIdViewModel mMovie;
+    private SharedPreferences sharedPreferences;
+    private boolean isfavorite = false;
 
 
     @Override
@@ -123,14 +130,44 @@ public class Detail extends AppCompatActivity {
                     }
                 })
                 .into(posterPath);
+
         mWordViewModel = ViewModelProviders.of(this).get(MovieViewModel.class);
+        //mMovie = ViewModelProviders.of(this).get(MovieIdViewModel.class);
+        //SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View view) {
-                makeFavourite(original_title, release_date, poster_path, vote_average, over_view, movie_id);
+                int t = makeFavourit(movie_id);
+                if (t > 1) {
+                    Toast.makeText(getApplicationContext(), "Added", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "favourites", Toast.LENGTH_SHORT).show();
+                }
 
-                Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), makeFavourit(movie_id), Toast.LENGTH_SHORT).show();
+
+//                if (isfavorite){
+//                    SharedPreferences.Editor editor = getSharedPreferences("info.popularmovies.Detail", MODE_PRIVATE).edit();
+//                    editor.putBoolean("Favorite Added", true);
+//                    editor.commit();
+//                    makeFavourite(original_title, release_date, poster_path, vote_average, over_view, movie_id);
+//                    Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_SHORT).show();
+//
+//                }else{
+//                    SharedPreferences.Editor editor = getSharedPreferences("info.popularmovies.Detail", MODE_PRIVATE).edit();
+//                    editor.putBoolean("Remove Favorite", true);
+//                    editor.commit();
+//                    deleteMovies(original_title, release_date, poster_path, vote_average, over_view, movie_id);
+//                    //Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+//
+//
+//                    //makeFavourite(original_title, release_date, poster_path, vote_average, over_view, movie_id);
+//                    Toast.makeText(getApplicationContext(), "Removed from favourites", Toast.LENGTH_SHORT).show();
+//
+//                }
+
             }
         });
 
@@ -181,10 +218,20 @@ public class Detail extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // handle arrow click here
-        if (item.getItemId() == android.R.id.home) {
-            finish(); // close this activity and return to preview activity (if there is any)
+        switch (item.getItemId()) {
+
+            case R.id.home:
+
+                finish();
+                return true;
+
+            case R.id.action_favourite:
+
+                Intent intent = new Intent(this, DatabaseActivity.class);
+                startActivity(intent);
+                return true;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -249,42 +296,30 @@ public class Detail extends AppCompatActivity {
         task.setRelease_date(release_dat);
         task.setVote_range(vote_averag);
         mWordViewModel.insert(task);
-//        Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+    }
+
+    private int makeFavourit(final int movie_i) {
+        DatabaseMovie task = new DatabaseMovie();
+        task.setId(movie_i);
+
+        int ty = mWordViewModel.getFavouriteMovieById(movie_i).hashCode();
+        return ty;
 
     }
-//        class SaveTask extends AsyncTask<Void, Void, Void> {
-//
-//            @Override
-//            protected Void doInBackground(Void... voids) {
-//
-//                //creating a task
-//                DatabaseMovie task = new DatabaseMovie();
-//                task.setOriginal_title(original_title);
-//                task.setId(movie_id);
-//                task.setOverview(over_view);
-//                task.setPoster_path(poster_path);
-//                task.setRelease_date(release_date);
-//                task.setVote_range(vote_average);
-//
-//
-//                //adding to database
-////                MovieRoomDatabase.getInstance(getApplicationContext()).getAppDatabase()
-////                        .taskDao()
-////                        .insert(task);
-//                return null;
-//            }
-//
-//            @Override
-//            protected void onPostExecute(Void aVoid) {
-//                super.onPostExecute(aVoid);
-//                finish();
-//                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-//                Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_LONG).show();
-//            }
-//        }
-//        Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
-//
-//    }
+
+    private void deleteMovies(final String original_titl, final String release_dat,
+                              final String poster_pat, final Double vote_averag,
+                              final String over_vie, final int movie_i) {
+        DatabaseMovie task = new DatabaseMovie();
+        task.setOriginal_title(original_titl);
+        task.setId(movie_i);
+        task.setOverview(over_vie);
+        task.setPoster_path(poster_pat);
+        task.setRelease_date(release_dat);
+        task.setVote_range(vote_averag);
+        mWordViewModel.delete(task);
+    }
+
 
     private void fetchTrailerItem(String url) {
         // Showing progress bar before making http request

@@ -2,6 +2,7 @@ package info.popularmovies.database;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
@@ -19,4 +20,10 @@ public interface MovieDao {
 
     @Query("SELECT * from movie_table")
     LiveData<List<DatabaseMovie>> getAllWords();
+
+    @Query("select * from movie_table where id = :id")
+    LiveData<DatabaseMovie> getMovieById(int id);
+
+    @Delete
+    void deleteBorrow(DatabaseMovie databaseMovies);
 }

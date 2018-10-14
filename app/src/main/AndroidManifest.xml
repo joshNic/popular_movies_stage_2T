@@ -24,6 +24,9 @@
         <activity
             android:name=".Detail"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".database.DatabaseActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
